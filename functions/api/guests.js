@@ -1,0 +1,1 @@
+export async function onRequestGet({env}) { const {results=[]}=await env.DB.prepare("SELECT id,name,gender,age,city,bio,photo_key,created_at FROM guests WHERE status='published' ORDER BY created_at DESC").all(); return Response.json(results); }

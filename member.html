@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>会员中心 · 陪伴记</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="site-header"><a class="brand" href="index.html">♡ 陪伴记</a><nav><a href="index.html">返回首页</a></nav></header>
+<main class="section" style="max-width:680px;margin:auto">
+  <h1>会员中心</h1>
+
+  <div id="guest-view">
+    <p>登录后可保存你的个人资料。注册需要验证邮箱，注册和登录都需要完成安全验证。</p>
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      <button type="button" class="button primary" id="tab-login">登录</button>
+      <button type="button" class="button ghost" id="tab-register">注册</button>
+    </div>
+
+    <form id="login-form">
+      <label>邮箱 <input id="le" type="email" autocomplete="email" required></label>
+      <label>密码 <input id="lp" type="password" autocomplete="current-password" required></label>
+      <div id="login-ts"></div>
+      <button class="button primary" type="submit">登录</button>
+      <button class="button ghost" type="button" id="resend-verify" hidden>重新发送验证邮件</button>
+      <p class="form-status" id="login-msg" role="status"></p>
+      <p><a href="#" id="to-forgot">忘记密码？</a></p>
+    </form>
+
+    <form id="register-form" hidden>
+      <label>邮箱 <input id="re" type="email" autocomplete="email" required></label>
+      <label>密码（至少12位） <input id="rp" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+      <label>确认密码 <input id="rp2" type="password" autocomplete="new-password" required></label>
+      <div id="register-ts"></div>
+      <button class="button primary" type="submit">创建账号</button>
+      <p class="form-status" id="register-msg" role="status"></p>
+    </form>
+
+    <form id="forgot-form" hidden>
+      <p>输入注册时使用的邮箱，我们会把重置密码的链接发给你。</p>
+      <label>邮箱 <input id="fe" type="email" autocomplete="email" required></label>
+      <div id="forgot-ts"></div>
+      <button class="button primary" type="submit">发送重置邮件</button>
+      <button class="button ghost" type="button" id="forgot-back">返回登录</button>
+      <p class="form-status" id="forgot-msg" role="status"></p>
+    </form>
+  </div>
+
+  <div id="member-view" hidden>
+    <form id="profile-form">
+      <p>当前账号：<b id="member-email"></b></p>
+      <label>昵称 <input id="pn" maxlength="20" required></label>
+      <div class="two-cols">
+        <label>性别 <select id="pg" required><option value="">请选择</option><option>女</option><option>男</option></select></label>
+        <label>年龄 <input id="pa" type="number" min="18" max="99" required></label>
+      </div>
+      <label>所在城市 <input id="pc" maxlength="30" required></label>
+      <label>一句自我介绍 <textarea id="pb" maxlength="120"></textarea><small>最多 120 字。资料仅自己可见，不会自动公开展示。</small></label>
+      <button class="button primary" type="submit">保存资料</button>
+      <button class="button ghost" type="button" id="logout">退出登录</button>
+      <p class="form-status" id="profile-msg" role="status"></p>
+    </form>
+  </div>
+</main>
+<script>window.PEIBANJI_TURNSTILE_SITEKEY = "0x4AAAAAAFFvjVPeDbIH4i0z";</script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<script src="member.js"></script>
+</body></html>

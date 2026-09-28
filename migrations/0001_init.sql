@@ -1,0 +1,2 @@
+CREATE TABLE IF NOT EXISTS guests (id TEXT PRIMARY KEY,name TEXT NOT NULL,gender TEXT NOT NULL CHECK(gender IN ('男','女')),age INTEGER NOT NULL CHECK(age BETWEEN 18 AND 99),city TEXT NOT NULL,bio TEXT NOT NULL,photo_key TEXT,status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','published','rejected','deleted')),created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TEXT);
+CREATE INDEX IF NOT EXISTS guests_public_list ON guests(status,created_at DESC);

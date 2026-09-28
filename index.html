@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="陪伴记——免费公益婚恋信息展示与陪伴连接平台。" />
+  <title>陪伴记 · 免费公益婚恋网站</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="#top" aria-label="陪伴记首页"><span>♡</span> 陪伴记</a><nav><a href="#guests">嘉宾展示</a><a href="#join">嘉宾登记</a><a href="member.html">会员中心</a><a href="#about">关于我们</a></nav></header>
+  <main id="top">
+    <section class="hero"><p class="eyebrow">FREE · 公益 · 真诚相遇</p><h1>陪伴，是最长情的告白。</h1><p>一个免费的公益婚恋信息平台。愿每一份认真，都被温柔看见。</p><div class="hero-actions"><a class="button primary" href="#join">免费登记资料</a><a class="button ghost" href="#guests">看看嘉宾</a></div><p class="notice">不收取会员费、不承诺撮合结果；请以真诚、尊重与安全为先。</p></section>
+    <section class="values"><article><b>完全免费</b><span>公益运营，不设付费门槛</span></article><article><b>资料可控</b><span>公开前由本人确认展示范围</span></article><article><b>温暖相识</b><span>先了解，再选择联系</span></article></section>
+    <section class="section" id="guests"><div class="section-heading"><p class="eyebrow">MEET THE GUESTS</p><h2>正在期待相遇的嘉宾</h2><div class="filters"><button class="filter active" data-filter="all">全部</button><button class="filter" data-filter="女">女士</button><button class="filter" data-filter="男">男士</button></div></div><div id="guest-list" class="guest-grid" aria-live="polite"></div><p id="empty-state" class="empty" hidden>还没有符合条件的嘉宾，欢迎成为第一位。</p></section>
+    <section class="about" id="founder-note"><p class="eyebrow">站长的话</p><h2>愿做一支蜡烛</h2><p>我也是这滚滚红尘里的一名"牛马"，深知成年人想要好好生活、认真交友，有多么不易</p><p>做这个网站，只是想当一支小小的蜡烛，尽一点绵薄之力，搭建一个免费、纯粹的交流平台</p><p>域名、服务器、日常维护成本，都由我一人默默承担，不收取任何费用，也不会有任何广告</p><p>唯一想拜托大家的是：请如实填写自己的资料，真诚地对待每一次相遇。</p></section>
+    <section class="join section" id="join"><div><p class="eyebrow">JOIN US</p><h2>留下真实的你</h2><p>提交后需站长审核通过，才会在网站上公开展示。</p><ul><li>请只上传本人、已获授权的照片</li><li>不要在公开资料中填写身份证、住址等敏感信息</li><li>提交即表示同意本站公益展示与隐私说明</li></ul></div><form id="registration-form" novalidate>
+      <label>昵称 <input name="name" maxlength="20" required placeholder="例如：向阳而生" /></label>
+      <div class="two-cols"><label>性别 <select name="gender" required><option value="">请选择</option><option>女</option><option>男</option></select></label><label>年龄 <input name="age" type="number" min="18" max="99" required placeholder="18-99" /></label></div>
+      <label>所在城市 <input name="city" maxlength="30" required placeholder="例如：周口" /></label>
+      <label>联系方式（保密） <input name="contact" maxlength="60" required placeholder="微信号或手机号，仅站长可见" /><small>不会公开展示。只有经你本人同意后，站长才会转达给对方。</small></label>
+      <label>一句自我介绍 <textarea name="bio" maxlength="120" required placeholder="说说你的生活、兴趣，或对陪伴的期待…"></textarea><small><span id="count">0</span>/120</small></label>
+      <label>展示照片 <input id="photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp" /><small>JPG、PNG 或 WebP，上传后会自动压缩，无需手动调整大小。未选照片将使用温馨占位图。</small></label>
+      <div id="turnstile-slot"></div>
+      <label class="check"><input name="consent" type="checkbox" required /> 我已阅读并同意本站<a href="#privacy">隐私与安全说明</a></label>
+      <button class="button primary" type="submit">提交资料</button><p class="form-status" id="form-status" role="status"></p>
+    </form></section>
+    <section id="about" class="about"><h2>让真心有一个安放之处</h2><p>陪伴记是面向单身朋友的免费公益信息平台。我们相信，相识应从尊重、坦诚和边界感开始。</p><p><b>站长 文森特</b> · 电话 <a href="tel:03942298776">0394-2298776</a> · 邮箱 <a href="mailto:vincent@lenalovely.com">vincent@lenalovely.com</a></p></section>
+  </main>
+  <footer id="privacy"><p>陪伴记 · 免费公益婚恋网站</p><p>请保护个人隐私，警惕任何借款、投资、索要验证码或转账要求。本站不对线下见面或第三方行为承担担保责任。</p><p>© <span id="year"></span> 陪伴记 · 站长 文森特</p></footer>
+  <dialog id="profile-dialog"><button class="close" aria-label="关闭">×</button><div id="dialog-content"></div></dialog>
+  <script>window.PEIBANJI_TURNSTILE_SITEKEY = "0x4AAAAAAFFvjVPeDbIH4i0z";</script>
+  <script src="app.js"></script>
+</body>
+</html>

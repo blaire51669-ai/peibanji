@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>验证邮箱 · 陪伴记</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="site-header"><a class="brand" href="index.html">♡ 陪伴记</a><nav><a href="member.html">会员中心</a></nav></header>
+<main class="section" style="max-width:560px;margin:auto">
+  <h1>验证邮箱</h1>
+  <p id="msg" role="status">正在验证…</p>
+  <p><a class="button primary" href="member.html">前往登录</a></p>
+</main>
+<script>
+(async () => {
+  const msg = document.querySelector('#msg');
+  const token = new URLSearchParams(location.hash.slice(1)).get('token');
+  history.replaceState(null, '', location.pathname);
+  if (!token) { msg.textContent = '验证链接不完整，请回到邮件里重新点击链接。'; return; }
+  try {
+    const r = await fetch('/api/members/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
+    const j = await r.json().catch(() => ({}));
+    msg.textContent = r.ok ? '邮箱验证成功！现在可以登录了。' : (j.error || '验证失败，请稍后再试。');
+  } catch { msg.textContent = '网络错误，请稍后刷新页面重试。'; }
+})();
+</script>
+</body></html>
