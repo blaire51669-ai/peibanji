@@ -6,36 +6,43 @@
   <h1>会员中心</h1>
 
   <div id="guest-view">
-    <p>登录后可保存你的个人资料。注册需要验证邮箱，注册和登录都需要完成安全验证。</p>
+    <p>注册需要手机短信验证码。手机号仅用于登录和找回密码，不会公开展示。</p>
     <div style="display:flex;gap:10px;margin-bottom:16px">
       <button type="button" class="button primary" id="tab-login">登录</button>
       <button type="button" class="button ghost" id="tab-register">注册</button>
     </div>
 
     <form id="login-form">
-      <label>邮箱 <input id="le" type="email" autocomplete="email" required></label>
+      <label>手机号 <input id="lph" type="tel" inputmode="numeric" maxlength="11" autocomplete="tel" required></label>
       <label>密码 <input id="lp" type="password" autocomplete="current-password" required></label>
       <div id="login-ts"></div>
       <button class="button primary" type="submit">登录</button>
-      <button class="button ghost" type="button" id="resend-verify" hidden>重新发送验证邮件</button>
       <p class="form-status" id="login-msg" role="status"></p>
       <p><a href="#" id="to-forgot">忘记密码？</a></p>
     </form>
 
     <form id="register-form" hidden>
-      <label>邮箱 <input id="re" type="email" autocomplete="email" required></label>
-      <label>密码（至少12位） <input id="rp" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
-      <label>确认密码 <input id="rp2" type="password" autocomplete="new-password" required></label>
+      <label>手机号 <input id="rph" type="tel" inputmode="numeric" maxlength="11" autocomplete="tel" required></label>
       <div id="register-ts"></div>
-      <button class="button primary" type="submit">创建账号</button>
+      <label>短信验证码
+        <div style="display:flex;gap:10px"><input id="rc" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="flex:1;min-width:0" required><button type="button" class="button ghost" id="register-send">获取验证码</button></div>
+      </label>
+      <label>设置密码（至少12位） <input id="rp" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+      <label>确认密码 <input id="rp2" type="password" autocomplete="new-password" required></label>
+      <button class="button primary" type="submit">注册</button>
       <p class="form-status" id="register-msg" role="status"></p>
     </form>
 
     <form id="forgot-form" hidden>
-      <p>输入注册时使用的邮箱，我们会把重置密码的链接发给你。</p>
-      <label>邮箱 <input id="fe" type="email" autocomplete="email" required></label>
+      <p>输入注册时使用的手机号，通过短信验证码设置新密码。</p>
+      <label>手机号 <input id="fph" type="tel" inputmode="numeric" maxlength="11" autocomplete="tel" required></label>
       <div id="forgot-ts"></div>
-      <button class="button primary" type="submit">发送重置邮件</button>
+      <label>短信验证码
+        <div style="display:flex;gap:10px"><input id="fc" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="flex:1;min-width:0" required><button type="button" class="button ghost" id="forgot-send">获取验证码</button></div>
+      </label>
+      <label>新密码（至少12位） <input id="fp" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+      <label>确认新密码 <input id="fp2" type="password" autocomplete="new-password" required></label>
+      <button class="button primary" type="submit">重置密码</button>
       <button class="button ghost" type="button" id="forgot-back">返回登录</button>
       <p class="form-status" id="forgot-msg" role="status"></p>
     </form>
@@ -43,7 +50,7 @@
 
   <div id="member-view" hidden>
     <form id="profile-form">
-      <p>当前账号：<b id="member-email"></b></p>
+      <p>当前账号：<b id="member-phone"></b></p>
       <label>昵称 <input id="pn" maxlength="20" required></label>
       <div class="two-cols">
         <label>性别 <select id="pg" required><option value="">请选择</option><option>女</option><option>男</option></select></label>

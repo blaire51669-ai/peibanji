@@ -23,9 +23,12 @@ async function api(url, method, body) {
   const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
   let j = {};
   try { j = await r.json(); } catch {}
-  if (!r.ok) { const e = new Error(j.error || '请求失败，请稍后再试。'); e.code = j.code; throw e; }
+  if (!r.ok) throw new Error(j.error || '请求失败，请稍后再试。');
   return j;
 }
+
+const isPhone = v => /^1[3-9]\d{9}$/.test(v);
+const maskPhone = p => (p && p.length === 11 ? p.slice(0, 3) + '****' + p.slice(7) : p || '');
 
 // name: login | register | forgot
 function showForm(name) {
@@ -34,18 +37,11 @@ function showForm(name) {
   $('#tab-register').className = 'button ' + (name === 'register' ? 'primary' : 'ghost');
   renderWidget(name, `#${name}-ts`);
 }
-
-function showGuest() {
-  $('#member-view').hidden = true;
-  $('#guest-view').hidden = false;
-  $('#resend-verify').hidden = true;
-  showForm('login');
-}
-
+function showGuest() { $('#member-view').hidden = true; $('#guest-view').hidden = false; showForm('login'); }
 function showMember(me) {
   $('#guest-view').hidden = true;
   $('#member-view').hidden = false;
-  $('#member-email').textContent = me.email;
+  $('#member-phone').textContent = maskPhone(me.phone);
   $('#pn').value = me.nickname || '';
   $('#pg').value = me.gender || '';
   $('#pa').value = me.age || '';
@@ -53,7 +49,6 @@ function showMember(me) {
   $('#pb').value = me.bio || '';
   $('#profile-msg').textContent = me.nickname ? '' : '请先完善资料并保存。';
 }
-
 async function loadMe() {
   const r = await fetch('/api/members/me');
   if (!r.ok) return false;
@@ -61,41 +56,54 @@ async function loadMe() {
   return true;
 }
 
+// 获取验证码：需要先完成安全验证；成功后按钮倒计时 60 秒
+function setupSend({ btn, phoneInput, purpose, widget, msg }) {
+  $(btn).onclick = async () => {
+    const phone = $(phoneInput).value.trim(), m = $(msg);
+    if (!isPhone(phone)) { m.textContent = '请输入正确的11位手机号。'; return; }
+    const token = getToken(widget);
+    if (!token) { m.textContent = '请先完成上方的安全验证。'; return; }
+    const b = $(btn);
+    b.disabled = true;
+    m.textContent = '正在发送验证码…';
+    try {
+      const res = await api('/api/members/sms-send', 'POST', { phone, purpose, turnstileToken: token });
+      m.textContent = res.message;
+      let n = 60;
+      b.textContent = `${n}s 后重发`;
+      const t = setInterval(() => {
+        n -= 1;
+        if (n <= 0) { clearInterval(t); b.disabled = false; b.textContent = '获取验证码'; }
+        else b.textContent = `${n}s 后重发`;
+      }, 1000);
+    } catch (err) {
+      m.textContent = err.message;
+      b.disabled = false;
+    } finally {
+      resetToken(widget);
+    }
+  };
+}
+setupSend({ btn: '#register-send', phoneInput: '#rph', purpose: 'register', widget: 'register', msg: '#register-msg' });
+setupSend({ btn: '#forgot-send', phoneInput: '#fph', purpose: 'reset', widget: 'forgot', msg: '#forgot-msg' });
+
 $('#tab-login').onclick = () => showForm('login');
 $('#tab-register').onclick = () => showForm('register');
-$('#to-forgot').onclick = e => { e.preventDefault(); $('#fe').value = $('#le').value; showForm('forgot'); };
+$('#to-forgot').onclick = e => { e.preventDefault(); $('#fph').value = $('#lph').value; showForm('forgot'); };
 $('#forgot-back').onclick = () => showForm('login');
 
 $('#login-form').onsubmit = async e => {
   e.preventDefault();
   const msg = $('#login-msg');
-  $('#resend-verify').hidden = true;
+  if (!isPhone($('#lph').value.trim())) { msg.textContent = '请输入正确的11位手机号。'; return; }
   const token = getToken('login');
   if (!token) { msg.textContent = '请先完成安全验证。'; return; }
   msg.textContent = '正在登录…';
   try {
-    await api('/api/members/login', 'POST', { email: $('#le').value, password: $('#lp').value, turnstileToken: token });
+    await api('/api/members/login', 'POST', { phone: $('#lph').value.trim(), password: $('#lp').value, turnstileToken: token });
     $('#lp').value = '';
     msg.textContent = '';
     if (!await loadMe()) msg.textContent = '登录成功，但读取账号失败，请刷新页面。';
-  } catch (err) {
-    msg.textContent = err.message;
-    if (err.code === 'unverified') $('#resend-verify').hidden = false;
-  } finally {
-    resetToken('login');
-  }
-};
-
-// 重新发送验证邮件：需要重新完成一次安全验证（令牌只能用一次）
-$('#resend-verify').onclick = async () => {
-  const msg = $('#login-msg');
-  const token = getToken('login');
-  if (!token) { msg.textContent = '请先完成上方的安全验证，再点击“重新发送验证邮件”。'; return; }
-  msg.textContent = '正在发送…';
-  try {
-    const res = await api('/api/members/resend-verification', 'POST', { email: $('#le').value, turnstileToken: token });
-    msg.textContent = res.message;
-    $('#resend-verify').hidden = true;
   } catch (err) {
     msg.textContent = err.message;
   } finally {
@@ -106,39 +114,36 @@ $('#resend-verify').onclick = async () => {
 $('#register-form').onsubmit = async e => {
   e.preventDefault();
   const msg = $('#register-msg');
+  if (!isPhone($('#rph').value.trim())) { msg.textContent = '请输入正确的11位手机号。'; return; }
   if ($('#rp').value.length < 12) { msg.textContent = '密码至少 12 位。'; return; }
   if ($('#rp').value !== $('#rp2').value) { msg.textContent = '两次输入的密码不一致。'; return; }
-  const token = getToken('register');
-  if (!token) { msg.textContent = '请先完成安全验证。'; return; }
-  msg.textContent = '正在创建账号…';
+  msg.textContent = '正在注册…';
   try {
-    const res = await api('/api/members/register', 'POST', { email: $('#re').value, password: $('#rp').value, turnstileToken: token });
-    $('#le').value = $('#re').value;
-    $('#rp').value = $('#rp2').value = '';
+    await api('/api/members/register', 'POST', { phone: $('#rph').value.trim(), code: $('#rc').value.trim(), password: $('#rp').value });
+    $('#rp').value = $('#rp2').value = $('#rc').value = '';
     msg.textContent = '';
-    showForm('login');
-    $('#login-msg').textContent = res.message || '账号已创建，请查收验证邮件。';
-    $('#resend-verify').hidden = res.emailSent !== false;
+    if (!await loadMe()) showForm('login');
   } catch (err) {
     msg.textContent = err.message;
-  } finally {
-    resetToken('register');
   }
 };
 
 $('#forgot-form').onsubmit = async e => {
   e.preventDefault();
   const msg = $('#forgot-msg');
-  const token = getToken('forgot');
-  if (!token) { msg.textContent = '请先完成安全验证。'; return; }
-  msg.textContent = '正在发送…';
+  if (!isPhone($('#fph').value.trim())) { msg.textContent = '请输入正确的11位手机号。'; return; }
+  if ($('#fp').value.length < 12) { msg.textContent = '新密码至少 12 位。'; return; }
+  if ($('#fp').value !== $('#fp2').value) { msg.textContent = '两次输入的密码不一致。'; return; }
+  msg.textContent = '正在重置…';
   try {
-    const res = await api('/api/members/forgot', 'POST', { email: $('#fe').value, turnstileToken: token });
-    msg.textContent = res.message;
+    await api('/api/members/reset', 'POST', { phone: $('#fph').value.trim(), code: $('#fc').value.trim(), password: $('#fp').value });
+    $('#lph').value = $('#fph').value.trim();
+    $('#fp').value = $('#fp2').value = $('#fc').value = '';
+    msg.textContent = '';
+    showForm('login');
+    $('#login-msg').textContent = '密码已重置，请用新密码登录。';
   } catch (err) {
     msg.textContent = err.message;
-  } finally {
-    resetToken('forgot');
   }
 };
 
