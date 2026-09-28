@@ -1,2 +1,2 @@
-const authorized=(request,env)=>request.headers.get('Authorization')===`Bearer ${env.ADMIN_TOKEN}`;
+const authorized=(request,env)=>!!env.ADMIN_TOKEN&&request.headers.get('Authorization')===`Bearer ${env.ADMIN_TOKEN}`;
 export async function onRequestPatch({request,env,params}) {if(!authorized(request,env))return new Response('Unauthorized',{status:401});const {status}=await request.json();if(!['approved','declined'].includes(status))return new Response('Bad request',{status:400});await env.DB.prepare('UPDATE contact_requests SET status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?').bind(status,params.id).run();return Response.json({ok:true});}
