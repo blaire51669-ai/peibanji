@@ -1,3 +1,12 @@
+import { json, sha256Hex } from '../../_lib/util.js';
 
-const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
-export async function onRequestGet({request,env}){const t=(request.headers.get('Cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('pb_session='))?.slice(11);if(!t)return Response.json({error:'未登录'},{status:401});const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));const row=await env.DB.prepare('SELECT m.id,m.email,m.created_at,p.nickname,p.gender,p.age,p.city,p.bio,p.visibility FROM member_sessions s JOIN members m ON m.id=s.member_id LEFT JOIN member_profiles p ON p.member_id=m.id WHERE s.token_hash=? AND s.expires_at>?').bind(hex(d),Math.floor(Date.now()/1000)).first();return row?Response.json(row):Response.json({error:'登录已过期'},{status:401})}
+export async function onRequestGet({ request, env }) {
+  const cookie = (request.headers.get('Cookie') || '').split(';').map(x => x.trim()).find(x => x.startsWith('pb_session='));
+  if (!cookie) return json({ error: '未登录' }, 401);
+  const row = await env.DB.prepare(
+    `SELECT m.id,m.phone,m.created_at,p.nickname,p.gender,p.age,p.city,p.bio,p.visibility
+     FROM member_sessions s JOIN members m ON m.id=s.member_id LEFT JOIN member_profiles p ON p.member_id=m.id
+     WHERE s.token_hash=? AND s.expires_at>?`
+  ).bind(await sha256Hex(cookie.slice(11)), Math.floor(Date.now() / 1000)).first();
+  return row ? json(row) : json({ error: '登录已过期' }, 401);
+}
