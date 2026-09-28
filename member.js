@@ -23,23 +23,23 @@ async function api(url, method, body) {
   const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
   let j = {};
   try { j = await r.json(); } catch {}
-  if (!r.ok) throw new Error(j.error || '请求失败，请稍后再试。');
+  if (!r.ok) { const e = new Error(j.error || '请求失败，请稍后再试。'); e.code = j.code; throw e; }
   return j;
 }
 
-function showTab(which) {
-  const login = which === 'login';
-  $('#login-form').hidden = !login;
-  $('#register-form').hidden = login;
-  $('#tab-login').className = 'button ' + (login ? 'primary' : 'ghost');
-  $('#tab-register').className = 'button ' + (login ? 'ghost' : 'primary');
-  renderWidget(login ? 'login' : 'register', login ? '#login-ts' : '#register-ts');
+// name: login | register | forgot
+function showForm(name) {
+  for (const f of ['login', 'register', 'forgot']) $(`#${f}-form`).hidden = f !== name;
+  $('#tab-login').className = 'button ' + (name === 'register' ? 'ghost' : 'primary');
+  $('#tab-register').className = 'button ' + (name === 'register' ? 'primary' : 'ghost');
+  renderWidget(name, `#${name}-ts`);
 }
 
 function showGuest() {
   $('#member-view').hidden = true;
   $('#guest-view').hidden = false;
-  showTab('login');
+  $('#resend-verify').hidden = true;
+  showForm('login');
 }
 
 function showMember(me) {
@@ -61,12 +61,15 @@ async function loadMe() {
   return true;
 }
 
-$('#tab-login').onclick = () => showTab('login');
-$('#tab-register').onclick = () => showTab('register');
+$('#tab-login').onclick = () => showForm('login');
+$('#tab-register').onclick = () => showForm('register');
+$('#to-forgot').onclick = e => { e.preventDefault(); $('#fe').value = $('#le').value; showForm('forgot'); };
+$('#forgot-back').onclick = () => showForm('login');
 
 $('#login-form').onsubmit = async e => {
   e.preventDefault();
   const msg = $('#login-msg');
+  $('#resend-verify').hidden = true;
   const token = getToken('login');
   if (!token) { msg.textContent = '请先完成安全验证。'; return; }
   msg.textContent = '正在登录…';
@@ -75,6 +78,24 @@ $('#login-form').onsubmit = async e => {
     $('#lp').value = '';
     msg.textContent = '';
     if (!await loadMe()) msg.textContent = '登录成功，但读取账号失败，请刷新页面。';
+  } catch (err) {
+    msg.textContent = err.message;
+    if (err.code === 'unverified') $('#resend-verify').hidden = false;
+  } finally {
+    resetToken('login');
+  }
+};
+
+// 重新发送验证邮件：需要重新完成一次安全验证（令牌只能用一次）
+$('#resend-verify').onclick = async () => {
+  const msg = $('#login-msg');
+  const token = getToken('login');
+  if (!token) { msg.textContent = '请先完成上方的安全验证，再点击“重新发送验证邮件”。'; return; }
+  msg.textContent = '正在发送…';
+  try {
+    const res = await api('/api/members/resend-verification', 'POST', { email: $('#le').value, turnstileToken: token });
+    msg.textContent = res.message;
+    $('#resend-verify').hidden = true;
   } catch (err) {
     msg.textContent = err.message;
   } finally {
@@ -95,12 +116,29 @@ $('#register-form').onsubmit = async e => {
     $('#le').value = $('#re').value;
     $('#rp').value = $('#rp2').value = '';
     msg.textContent = '';
-    showTab('login');
-    $('#login-msg').textContent = res.message || '账号创建成功，请登录。';
+    showForm('login');
+    $('#login-msg').textContent = res.message || '账号已创建，请查收验证邮件。';
+    $('#resend-verify').hidden = res.emailSent !== false;
   } catch (err) {
     msg.textContent = err.message;
   } finally {
     resetToken('register');
+  }
+};
+
+$('#forgot-form').onsubmit = async e => {
+  e.preventDefault();
+  const msg = $('#forgot-msg');
+  const token = getToken('forgot');
+  if (!token) { msg.textContent = '请先完成安全验证。'; return; }
+  msg.textContent = '正在发送…';
+  try {
+    const res = await api('/api/members/forgot', 'POST', { email: $('#fe').value, turnstileToken: token });
+    msg.textContent = res.message;
+  } catch (err) {
+    msg.textContent = err.message;
+  } finally {
+    resetToken('forgot');
   }
 };
 

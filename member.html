@@ -6,7 +6,7 @@
   <h1>会员中心</h1>
 
   <div id="guest-view">
-    <p>登录后可保存你的个人资料。注册和登录都需要完成安全验证。</p>
+    <p>登录后可保存你的个人资料。注册需要验证邮箱，注册和登录都需要完成安全验证。</p>
     <div style="display:flex;gap:10px;margin-bottom:16px">
       <button type="button" class="button primary" id="tab-login">登录</button>
       <button type="button" class="button ghost" id="tab-register">注册</button>
@@ -17,7 +17,9 @@
       <label>密码 <input id="lp" type="password" autocomplete="current-password" required></label>
       <div id="login-ts"></div>
       <button class="button primary" type="submit">登录</button>
+      <button class="button ghost" type="button" id="resend-verify" hidden>重新发送验证邮件</button>
       <p class="form-status" id="login-msg" role="status"></p>
+      <p><a href="#" id="to-forgot">忘记密码？</a></p>
     </form>
 
     <form id="register-form" hidden>
@@ -27,6 +29,15 @@
       <div id="register-ts"></div>
       <button class="button primary" type="submit">创建账号</button>
       <p class="form-status" id="register-msg" role="status"></p>
+    </form>
+
+    <form id="forgot-form" hidden>
+      <p>输入注册时使用的邮箱，我们会把重置密码的链接发给你。</p>
+      <label>邮箱 <input id="fe" type="email" autocomplete="email" required></label>
+      <div id="forgot-ts"></div>
+      <button class="button primary" type="submit">发送重置邮件</button>
+      <button class="button ghost" type="button" id="forgot-back">返回登录</button>
+      <p class="form-status" id="forgot-msg" role="status"></p>
     </form>
   </div>
 
