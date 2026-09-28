@@ -1,4 +1,4 @@
-const examples=[{id:'rose',name:'若岚',gender:'女',age:28,city:'郑州',bio:'喜欢读书、散步和家常的烟火气，希望遇见愿意一起成长的人。'},{id:'sun',name:'知远',gender:'男',age:32,city:'周口',bio:'工作认真，生活简单。周末爱骑行，也想有人一起分享日落。'},{id:'leaf',name:'安然',gender:'女',age:30,city:'开封',bio:'相信舒适的关系是彼此尊重，也保留各自的热爱。'}];
+const examples=[];
 const fallback=name=>`data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="500"><rect width="100%" height="100%" fill="#f5dfda"/><text x="50%" y="48%" dominant-baseline="middle" text-anchor="middle" font-size="105" fill="#b85b6e">♡</text><text x="50%" y="68%" dominant-baseline="middle" text-anchor="middle" font-size="24" fill="#8d5b65">${name}</text></svg>`)}`;
 let guests=[...examples],active='all';
 const list=document.querySelector('#guest-list'),empty=document.querySelector('#empty-state'),dialog=document.querySelector('#profile-dialog');
