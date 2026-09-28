@@ -1,0 +1,2 @@
+const authorized=(request,env)=>request.headers.get('Authorization')===`Bearer ${env.ADMIN_TOKEN}`;
+export async function onRequestGet({request,env}) {if(!authorized(request,env))return new Response('Unauthorized',{status:401});const {results=[]}=await env.DB.prepare("SELECT id,name,gender,age,city,bio,photo_key,created_at FROM guests WHERE status='pending' ORDER BY created_at ASC").all();return Response.json(results);}
