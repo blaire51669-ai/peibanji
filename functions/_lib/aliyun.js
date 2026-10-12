@@ -33,7 +33,7 @@ export async function sendSms(env, phone, code) {
     const query = {
       PhoneNumbers: phone,
       SignName: env.SMS_SIGN_NAME || '周口云鸿',
-      TemplateCode: env.SMS_TEMPLATE_CODE || 'SMS_512570448',
+      TemplateCode: env.SMS_TEMPLATE_CODE || 'SMS_338955556',
       TemplateParam: JSON.stringify({ [env.SMS_CODE_PARAM || 'code']: code })
     };
     const { queryString, headers } = await signAcs3({
