@@ -72,3 +72,28 @@ app.js       演示数据、本地登记、照片预览和筛选
 项目内置 `functions/`，Cloudflare Pages 会在部署时识别这些 Functions。创建 D1 数据库及私有 R2 桶后，在 Pages 的 **Settings → Bindings** 中分别绑定为 `DB` 和 `PHOTOS`；再将 `migrations/0001_init.sql` 导入 D1。在 **Variables and Secrets** 添加加密变量 `TURNSTILE_SECRET` 与随机强密码 `ADMIN_TOKEN`。
 
 创建 Turnstile widget 后，将其公开 Site Key 填入 `index.html` 中 `PEIBANJI_TURNSTILE_SITEKEY`。重新部署后，用户资料会进入待审核队列；站长访问 `/admin.html` 并输入 `ADMIN_TOKEN`，可发布或拒绝资料。令牌绝不可写进公开网页、分享或保存到浏览器。
+
+## 数据库迁移顺序
+
+在 D1 控制台按顺序执行 `migrations/` 下的文件：`0001_init.sql` → `0002_members.sql` → `0003_contact_requests.sql` → `0004_rate_limits.sql` → `0006_phone_auth.sql`。
+
+- `0005_email_verification.sql` 是旧的邮箱验证方案，**不要执行**（已改为手机号注册，`0006` 会重建会员相关表）。
+- `0006` 会清空现有会员账号，已有真实用户请先备份。
+- `0003` 里的 `ALTER TABLE guests ADD COLUMN contact` 如果提示列已存在，删掉该行再执行。
+
+## 手机号注册与短信验证（阿里云短信服务）
+
+会员注册、找回密码使用「手机号 + 短信验证码」。验证码由服务端生成，只保存哈希，5 分钟有效，错误 5 次作废；发送前须通过 Turnstile，并有 IP、手机号、全站三层限流。
+
+在 Cloudflare Pages 的 **Settings → Variables and Secrets** 添加：
+
+| 变量 | 说明 |
+| --- | --- |
+| `ALIYUN_ACCESS_KEY_ID` / `ALIYUN_ACCESS_KEY_SECRET` | 阿里云 RAM 子账号的 AccessKey，仅授予短信服务发送权限（加密保存） |
+| `SMS_SIGN_NAME` | 短信签名，默认 `周口云鸿` |
+| `SMS_TEMPLATE_CODE` | 验证码模板 CODE，默认 `SMS_338955556`（模板内容：您的验证码为：${code}，请勿泄露于他人！） |
+| `SMS_CODE_PARAM` | 模板里验证码变量名，默认 `code` |
+| `SMS_DAILY_LIMIT` | 可选，全站每日短信上限，默认 300 |
+| `PBKDF2_ITERATIONS` | 可选，免费版 CPU 超时时可调低（10000–100000） |
+
+另需 `TURNSTILE_SECRET`、`ADMIN_TOKEN` 以及 `DB`、`PHOTOS` 绑定。修改变量后需重新部署才会生效。
