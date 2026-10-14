@@ -38,7 +38,9 @@ function showForm(name) {
   renderWidget(name, `#${name}-ts`);
 }
 function showGuest() { $('#member-view').hidden = true; $('#guest-view').hidden = false; showForm('login'); }
+let firstProfile = false;   // 首次保存资料 = 注册流程的最后一步
 function showMember(me) {
+  firstProfile = !me.nickname;
   $('#guest-view').hidden = true;
   $('#member-view').hidden = false;
   $('#member-phone').textContent = maskPhone(me.phone);
@@ -153,7 +155,14 @@ $('#profile-form').onsubmit = async e => {
   msg.textContent = '正在保存…';
   try {
     await api('/api/members/profile', 'PUT', { nickname: $('#pn').value, gender: $('#pg').value, age: $('#pa').value, city: $('#pc').value, bio: $('#pb').value });
-    msg.textContent = '资料已保存。';
+    if (firstProfile) {
+      firstProfile = false;
+      msg.textContent = '注册成功！正在跳转到首页…';
+      $('#profile-form').querySelectorAll('button').forEach(b => b.disabled = true);
+      setTimeout(() => { location.href = '/'; }, 1500);
+    } else {
+      msg.textContent = '资料已保存。';
+    }
   } catch (err) {
     msg.textContent = err.message;
     if (/过期/.test(err.message)) showGuest();
