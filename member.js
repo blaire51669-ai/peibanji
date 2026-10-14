@@ -175,4 +175,4 @@ $('#logout').onclick = async () => {
   $('#login-msg').textContent = '已退出登录。';
 };
 
-loadMe().then(ok => { if (!ok) showGuest(); }).catch(showGuest);
+loadMe().then(ok => { if (!ok) { showGuest(); if (location.hash === '#register') showForm('register'); } }).catch(() => { showGuest(); if (location.hash === '#register') showForm('register'); });
