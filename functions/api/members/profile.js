@@ -23,17 +23,25 @@ export async function onRequestPut({ request, env }) {
   try {
     const memberId = await sessionMemberId(request, env);
     if (!memberId) return json({ error: '登录已过期，请重新登录。' }, 401);
-    let f;
-    try { f = await request.formData(); } catch { return json({ error: '请求格式不正确。' }, 400); }
-    const nickname = String(f.get('nickname') || '').trim(), gender = String(f.get('gender') || ''), age = Number(f.get('age')),
-          city = String(f.get('city') || '').trim(), bio = String(f.get('bio') || '').trim();
+    // 同时兼容表单(multipart，带照片)和旧版 JSON(无照片)，避免浏览器缓存了旧页面脚本时无法保存
+    const ct = (request.headers.get('Content-Type') || '').toLowerCase();
+    let get, photoField = null;
+    try {
+      if (ct.includes('application/json')) { const b = await request.json(); get = k => b[k]; }
+      else { const f = await request.formData(); get = k => f.get(k); photoField = f.get('photo'); }
+    } catch (e) {
+      console.error('profile parse failed:', ct, e && e.message);
+      return json({ error: `请求格式不正确（${ct || '无类型'}）。请按 Ctrl+F5 强制刷新页面后重试。` }, 400);
+    }
+    const nickname = String(get('nickname') || '').trim(), gender = String(get('gender') || ''), age = Number(get('age')),
+          city = String(get('city') || '').trim(), bio = String(get('bio') || '').trim();
     if (!nickname || nickname.length > 20 || !['男', '女'].includes(gender) || !Number.isInteger(age) || age < 18 || age > 99 ||
         !city || city.length > 30 || bio.length > 120)
       return json({ error: '资料格式不正确：昵称≤20字，年龄18–99，城市≤30字，自我介绍≤120字。' }, 400);
 
     const old = await env.DB.prepare('SELECT photo_key FROM member_profiles WHERE member_id=?').bind(memberId).first();
     let photoKey = old ? old.photo_key : null, newKey = null;
-    const photo = f.get('photo');
+    const photo = photoField;
     if (photo && typeof photo !== 'string' && photo.size) {
       if (photo.size > 3 * 1024 * 1024) return json({ error: '照片不能超过 3MB。' }, 400);
       const buf = new Uint8Array(await photo.arrayBuffer());
