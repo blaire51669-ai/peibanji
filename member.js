@@ -38,6 +38,7 @@ function showForm(name) {
   renderWidget(name, `#${name}-ts`);
 }
 function showGuest() { $('#member-view').hidden = true; $('#guest-view').hidden = false; showForm('login'); }
+const reviewLabel = { pending: '审核状态：审核中，通过后将在首页公开展示。', published: '审核状态：已公开展示。', rejected: '审核状态：未通过，请修改资料或更换照片后重新保存。' };
 let firstProfile = false;   // 首次保存资料 = 注册流程的最后一步
 function showMember(me) {
   firstProfile = !me.nickname;
@@ -49,6 +50,11 @@ function showMember(me) {
   $('#pa').value = me.age || '';
   $('#pc').value = me.city || '';
   $('#pb').value = me.bio || '';
+  const prev = $('#photo-preview');
+  if (me.photo_key) { prev.src = `/api/photos/${encodeURIComponent(me.photo_key)}`; prev.hidden = false; } else { prev.hidden = true; prev.removeAttribute('src'); }
+  $('#pp').value = '';
+  $('#pp').required = !me.photo_key;   // 还没有照片时必须选择一张
+  $('#review-status').textContent = me.photo_key ? (reviewLabel[me.review_status] || '') : '';
   $('#profile-msg').textContent = me.nickname ? '' : '请先完善资料并保存。';
 }
 async function loadMe() {
@@ -149,19 +155,44 @@ $('#forgot-form').onsubmit = async e => {
   }
 };
 
+$('#pp').onchange = () => {
+  const f = $('#pp').files[0], prev = $('#photo-preview');
+  if (f && f.type.startsWith('image/')) { prev.src = URL.createObjectURL(f); prev.hidden = false; }
+};
+async function compressImage(file, maxDim = 1600, quality = 0.82) {
+  const img = await new Promise((res, rej) => { const i = new Image(), u = URL.createObjectURL(file); i.onload = () => { URL.revokeObjectURL(u); res(i); }; i.onerror = rej; i.src = u; });
+  let w = img.naturalWidth, h = img.naturalHeight;
+  if (Math.max(w, h) > maxDim) { const k = maxDim / Math.max(w, h); w = Math.round(w * k); h = Math.round(h * k); }
+  const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h);
+  return await new Promise(res => c.toBlob(res, 'image/jpeg', quality)) || file;
+}
+
 $('#profile-form').onsubmit = async e => {
   e.preventDefault();
   const msg = $('#profile-msg');
   msg.textContent = '正在保存…';
   try {
-    await api('/api/members/profile', 'PUT', { nickname: $('#pn').value, gender: $('#pg').value, age: $('#pa').value, city: $('#pc').value, bio: $('#pb').value });
+    const fd = new FormData();
+    fd.set('nickname', $('#pn').value); fd.set('gender', $('#pg').value); fd.set('age', $('#pa').value); fd.set('city', $('#pc').value); fd.set('bio', $('#pb').value);
+    const file = $('#pp').files[0];
+    if (!file && !$('#photo-preview').getAttribute('src')) { msg.textContent = '请上传一张本人照片。'; return; }
+    if (file) {
+      if (!file.type.startsWith('image/')) { msg.textContent = '请上传图片格式的照片。'; return; }
+      let blob; try { blob = await compressImage(file); } catch { blob = file; }
+      fd.set('photo', blob, 'photo.jpg');
+    }
+    const r = await fetch('/api/members/profile', { method: 'PUT', body: fd });
+    const result = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(result.error || '保存失败，请稍后再试。');
     if (firstProfile) {
       firstProfile = false;
-      msg.textContent = '注册成功！正在跳转到首页…';
+      msg.textContent = '注册成功！资料已提交，站长审核通过后会公开展示。正在跳转首页…';
       $('#profile-form').querySelectorAll('button').forEach(b => b.disabled = true);
-      setTimeout(() => { location.href = '/'; }, 1500);
+      setTimeout(() => { location.href = '/'; }, 2500);
     } else {
-      msg.textContent = '资料已保存。';
+      msg.textContent = result.review_status === 'pending' ? '资料已保存，等待站长审核后公开。' : '资料已保存。';
+      $('#review-status').textContent = reviewLabel[result.review_status] || '';
+      if (result.photo_key) { $('#pp').required = false; $('#pp').value = ''; }
     }
   } catch (err) {
     msg.textContent = err.message;

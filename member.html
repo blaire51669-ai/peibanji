@@ -57,7 +57,11 @@
         <label>年龄 <input id="pa" type="number" min="18" max="99" required></label>
       </div>
       <label>所在城市 <input id="pc" maxlength="30" required></label>
-      <label>一句自我介绍 <textarea id="pb" maxlength="120"></textarea><small>最多 120 字。资料仅自己可见，不会自动公开展示。</small></label>
+      <label>一句自我介绍 <textarea id="pb" maxlength="120"></textarea><small>最多 120 字。</small></label>
+      <label>展示照片（必传） <img id="photo-preview" alt="我的照片" hidden style="display:block;max-width:180px;max-height:180px;object-fit:contain;border-radius:10px;background:#f4ddd7;margin:6px 0">
+        <input id="pp" type="file" accept="image/png,image/jpeg,image/webp" required><small>请上传本人清晰照片，JPG、PNG 或 WebP，上传后会自动压缩。</small></label>
+      <p class="form-status" id="review-status"></p>
+      <p><small>提交后由站长审核，通过后昵称、年龄、城市、自我介绍和照片会在首页“嘉宾展示”公开；手机号不会公开。修改资料或照片后需重新审核。</small></p>
       <button class="button primary" type="submit">保存资料</button>
       <button class="button ghost" type="button" id="logout">退出登录</button>
       <p class="form-status" id="profile-msg" role="status"></p>
