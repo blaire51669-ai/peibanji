@@ -40,12 +40,15 @@ function showForm(name) {
 function showGuest() { $('#member-view').hidden = true; $('#guest-view').hidden = false; showForm('login'); }
 const reviewLabel = { pending: '审核状态：审核中，通过后将在首页公开展示。', published: '审核状态：已公开展示。', rejected: '审核状态：未通过，请修改资料或更换照片后重新保存。' };
 let firstProfile = false;   // 首次保存资料 = 注册流程的最后一步
-let currentPhotos = [], removedPhotos = [];
+let currentPhotos = [], removedPhotos = [], pendingFiles = [], pendingPreviewUrls = [];
 function renderPhotos() {
   const gallery = $('#photo-gallery');
-  gallery.innerHTML = currentPhotos.map(key => `<div style="position:relative"><img src="/api/photos/${encodeURIComponent(key)}" alt="我的照片" style="width:110px;height:110px;object-fit:cover;border-radius:10px"><button type="button" data-remove-photo="${key}" aria-label="删除照片" style="display:block">删除</button></div>`).join('');
+  pendingPreviewUrls.forEach(URL.revokeObjectURL); pendingPreviewUrls = [];
+  const saved = currentPhotos.map(key => `<div style="position:relative"><img src="/api/photos/${encodeURIComponent(key)}" alt="我的照片" style="width:110px;height:110px;object-fit:cover;border-radius:10px"><button type="button" data-remove-photo="${key}" aria-label="删除照片" style="display:block">删除</button></div>`).join('');
+  const queued = pendingFiles.map((file,i) => { const url=URL.createObjectURL(file);pendingPreviewUrls.push(url);return `<div style="position:relative"><img src="${url}" alt="待上传照片" style="width:110px;height:110px;object-fit:cover;border-radius:10px"><button type="button" data-remove-pending="${i}" aria-label="移除待上传照片" style="display:block">移除待上传</button></div>`; }).join('');
+  gallery.innerHTML = saved + queued;
 }
-$('#photo-gallery').addEventListener('click', e => { const b=e.target.closest('[data-remove-photo]'); if(!b)return; const key=b.dataset.removePhoto; currentPhotos=currentPhotos.filter(x=>x!==key); removedPhotos.push(key); renderPhotos(); });
+$('#photo-gallery').addEventListener('click', e => { const removeSaved=e.target.closest('[data-remove-photo]'); if(removeSaved){const key=removeSaved.dataset.removePhoto;currentPhotos=currentPhotos.filter(x=>x!==key);removedPhotos.push(key);renderPhotos();return}const removePending=e.target.closest('[data-remove-pending]');if(removePending){pendingFiles.splice(Number(removePending.dataset.removePending),1);renderPhotos()}});
 function showMember(me) {
   firstProfile = !me.nickname;
   $('#guest-view').hidden = true;
@@ -59,7 +62,7 @@ function showMember(me) {
   $('#ped').value = me.education || '';
   $('#ph').value = me.height || '';
   $('#pw').value = me.weight || '';
-  currentPhotos = me.photos || (me.photo_key ? [me.photo_key] : []); removedPhotos = []; renderPhotos();
+  currentPhotos = me.photos || (me.photo_key ? [me.photo_key] : []); removedPhotos = []; pendingFiles = []; renderPhotos();
   $('#pp').value = '';
   $('#review-status').textContent = currentPhotos.length ? (reviewLabel[me.review_status] || '') : '';
   $('#profile-msg').textContent = me.nickname ? '' : '请先完善资料并保存。';
@@ -162,7 +165,14 @@ $('#forgot-form').onsubmit = async e => {
   }
 };
 
-$('#pp').onchange = () => { if (currentPhotos.length + $('#pp').files.length > 3) { $('#profile-msg').textContent = '最多只能保留 3 张照片。请减少选择或删除已有照片。'; $('#pp').value=''; } };
+$('#pp').onchange = () => {
+  const incoming = [...$('#pp').files];
+  const room = 3 - currentPhotos.length - pendingFiles.length;
+  if (incoming.length > room) $('#profile-msg').textContent = room > 0 ? `这次最多还能添加 ${room} 张；已保留本次选择中的前 ${room} 张。` : '已达到 3 张上限，请先移除一张照片。';
+  pendingFiles.push(...incoming.slice(0, Math.max(0, room)));
+  $('#pp').value = '';
+  renderPhotos();
+};
 async function compressImage(file, maxDim = 1600, quality = 0.82) {
   const img = await new Promise((res, rej) => { const i = new Image(), u = URL.createObjectURL(file); i.onload = () => { URL.revokeObjectURL(u); res(i); }; i.onerror = rej; i.src = u; });
   let w = img.naturalWidth, h = img.naturalHeight;
@@ -178,7 +188,7 @@ $('#profile-form').onsubmit = async e => {
   try {
     const fd = new FormData();
     fd.set('nickname', $('#pn').value); fd.set('gender', $('#pg').value); fd.set('age', $('#pa').value); fd.set('city', $('#pc').value); fd.set('bio', $('#pb').value); fd.set('education', $('#ped').value); fd.set('height', $('#ph').value); fd.set('weight', $('#pw').value); fd.set('removed_photos', JSON.stringify(removedPhotos));
-    const files = [...$('#pp').files];
+    const files = pendingFiles;
     if (currentPhotos.length + files.length < 1) { msg.textContent = '请至少保留一张本人照片。'; return; }
     if (currentPhotos.length + files.length > 3) { msg.textContent = '最多只能保留 3 张照片。'; return; }
     for (const file of files) {
@@ -198,7 +208,7 @@ $('#profile-form').onsubmit = async e => {
       msg.textContent = result.review_status === 'pending' ? '资料已保存，等待站长审核后公开。' : '资料已保存。';
       $('#review-status').textContent = reviewLabel[result.review_status] || '';
       if (result.photos) currentPhotos = result.photos;
-      removedPhotos = []; renderPhotos(); $('#pp').value = '';
+      removedPhotos = []; pendingFiles = []; renderPhotos(); $('#pp').value = '';
     }
   } catch (err) {
     msg.textContent = err.message;
