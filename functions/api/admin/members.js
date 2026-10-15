@@ -3,8 +3,9 @@ const authorized=(request,env)=>!!env.ADMIN_TOKEN&&request.headers.get('Authoriz
 export async function onRequestGet({request,env}) {
   if(!authorized(request,env))return new Response('Unauthorized',{status:401});
   const {results=[]}=await env.DB.prepare(
-    `SELECT m.id,m.phone,m.created_at,p.nickname,p.gender,p.age,p.city,p.bio,p.photo_key,g.status AS review_status
+    `SELECT m.id,m.phone,m.created_at,p.nickname,p.gender,p.age,p.city,p.bio,p.education,p.height,p.weight,p.photo_key,g.status AS review_status
      FROM members m LEFT JOIN member_profiles p ON p.member_id=m.id LEFT JOIN guests g ON g.id=m.id
      ORDER BY m.created_at DESC`).all();
+  for(const m of results){const p=await env.DB.prepare('SELECT photo_key FROM member_photos WHERE member_id=? ORDER BY sort_order').bind(m.id).all();m.photos=(p.results||[]).map(x=>x.photo_key)}
   return Response.json(results);
 }
