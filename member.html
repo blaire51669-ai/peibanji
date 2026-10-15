@@ -57,9 +57,11 @@
         <label>年龄 <input id="pa" type="number" min="18" max="99" required></label>
       </div>
       <label>所在城市 <input id="pc" maxlength="30" required></label>
+      <label>学历 <select id="ped" required><option value="">请选择</option><option>高中及以下</option><option>大专</option><option>本科</option><option>硕士</option><option>博士</option><option>其他</option></select></label>
+      <div class="two-cols"><label>身高（cm） <input id="ph" type="number" min="100" max="250" required></label><label>体重（kg） <input id="pw" type="number" min="25" max="250" required></label></div>
       <label>一句自我介绍 <textarea id="pb" maxlength="120"></textarea><small>最多 120 字。</small></label>
-      <label>展示照片（必传） <img id="photo-preview" alt="我的照片" hidden style="display:block;max-width:180px;max-height:180px;object-fit:contain;border-radius:10px;background:#f4ddd7;margin:6px 0">
-        <input id="pp" type="file" accept="image/png,image/jpeg,image/webp" required><small>请上传本人清晰照片，JPG、PNG 或 WebP，上传后会自动压缩。</small></label>
+      <label>展示照片（至少 1 张，最多 3 张） <div id="photo-gallery" style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0"></div>
+        <input id="pp" type="file" accept="image/png,image/jpeg,image/webp" multiple><small>JPG、PNG 或 WebP，每张不超过 3MB；上传后会自动压缩。修改后需重新审核。</small></label>
       <p class="form-status" id="review-status"></p>
       <p><small>提交后由站长审核，通过后昵称、年龄、城市、自我介绍和照片会在首页“会员展示”公开；手机号不会公开。修改资料或照片后需重新审核。</small></p>
       <button class="button primary" type="submit">保存资料</button>
@@ -70,5 +72,5 @@
 </main>
 <script>window.PEIBANJI_TURNSTILE_SITEKEY = "0x4AAAAAAFFvjVPeDbIH4i0z";</script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-<script src="member.js?v=20261014"></script>
+<script src="member.js?v=20261015"></script>
 </body></html>
