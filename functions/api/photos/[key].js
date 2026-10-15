@@ -9,7 +9,7 @@ export async function onRequestGet({ request, env, params }) {
     const cookie = (request.headers.get('Cookie') || '').split(';').map(x => x.trim()).find(x => x.startsWith('pb_session='));
     if (cookie) {
       const own = await env.DB.prepare(
-        `SELECT p.photo_key FROM member_sessions s JOIN member_profiles p ON p.member_id=s.member_id
+        `SELECT p.photo_key FROM member_sessions s JOIN member_photos p ON p.member_id=s.member_id
          WHERE s.token_hash=? AND s.expires_at>? AND p.photo_key=?`
       ).bind(await sha256Hex(cookie.slice(11)), Math.floor(Date.now() / 1000), key).first();
       if (own) {
@@ -19,7 +19,7 @@ export async function onRequestGet({ request, env, params }) {
     }
   }
   // 其他人：已发布的照片可见；待审核的照片仅凭不可猜的随机文件名访问（后台审核要用）；被拒绝的不可见
-  const row = await env.DB.prepare("SELECT photo_key FROM guests WHERE photo_key=? AND status IN ('pending','published')").bind(key).first();
+  const row = await env.DB.prepare("SELECT g.photo_key FROM guests g JOIN member_photos p ON p.member_id=g.id WHERE p.photo_key=? AND g.status IN ('pending','published') UNION SELECT photo_key FROM guests WHERE photo_key=? AND status IN ('pending','published')").bind(key,key).first();
   if (!row) return new Response('Not found', { status: 404 });
   const object = await env.PHOTOS.get(key);
   if (!object) return new Response('Not found', { status: 404 });
