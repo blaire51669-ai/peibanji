@@ -15,5 +15,10 @@
 .member-actions .button{display:flex;align-items:center;justify-content:center;min-height:42px;margin:0;padding:8px 14px;white-space:nowrap}
 .member-actions .member-delete{width:100%;border-color:#d8a2a7;color:#a34e5c;background:#fff}
 .member-actions .member-delete:hover{background:#fff0ed}
+.admin-member-search{max-width:520px;margin:14px 0 8px}
+.admin-member-search label{margin-bottom:6px}
+.admin-member-search>div{display:flex;align-items:center;gap:8px}
+.admin-member-search input{flex:1;min-width:0}
+.admin-member-search .button{flex:none;margin:0;padding:8px 16px}
 
 .join-card{background:white;border-radius:16px;padding:28px;box-shadow:var(--shadow)}.join-card h3{margin:0 0 8px}.join-card ol{padding-left:22px;margin:0 0 18px}.join-card .ghost{margin-left:10px}

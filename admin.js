@@ -1,4 +1,4 @@
-const statusEl=document.querySelector('#admin-status'),pendingEl=document.querySelector('#pending-list'),publishedEl=document.querySelector('#published-list'),contactEl=document.querySelector('#contact-requests-list'),membersEl=document.querySelector('#members-list'),filtersEl=document.querySelector('#member-filters');let allMembers=[],memberFilter='all';
+const statusEl=document.querySelector('#admin-status'),pendingEl=document.querySelector('#pending-list'),publishedEl=document.querySelector('#published-list'),contactEl=document.querySelector('#contact-requests-list'),membersEl=document.querySelector('#members-list'),filtersEl=document.querySelector('#member-filters');let allMembers=[],memberFilter='all',memberPhoneQuery='';
 const escapeHTML=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const headers=()=>({Authorization:`Bearer ${document.querySelector('#admin-token').value}`});
 async function fetchList(status){const r=await fetch(`/api/admin/guests?status=${status}`,{headers:headers()});if(!r.ok)throw new Error(r.status===401?'令牌无效。':'暂时无法加载资料。');return r.json();}
@@ -19,14 +19,17 @@ const memberGroup=m=>!m.nickname?'incomplete':(m.review_status||'pending');
 const groupText={all:'全部',pending:'审核中',published:'已公开',rejected:'未通过',incomplete:'未完善资料'};
 const groupOrder={pending:0,incomplete:1,rejected:2,published:3};
 function renderMembers(){
-  const counts={all:allMembers.length,pending:0,published:0,rejected:0,incomplete:0};
-  allMembers.forEach(m=>{const g=memberGroup(m);if(counts[g]!==undefined)counts[g]++});
+  const matches=allMembers.filter(m=>String(m.phone||'').includes(memberPhoneQuery));
+  const counts={all:matches.length,pending:0,published:0,rejected:0,incomplete:0};
+  matches.forEach(m=>{const g=memberGroup(m);if(counts[g]!==undefined)counts[g]++});
   filtersEl.innerHTML=Object.keys(groupText).map(k=>`<button class="filter${k===memberFilter?' active':''}" data-filter-member="${k}">${groupText[k]} ${counts[k]}</button>`).join('');
-  const shown=allMembers.filter(m=>memberFilter==='all'||memberGroup(m)===memberFilter).sort((a,b)=>(groupOrder[memberGroup(a)]??9)-(groupOrder[memberGroup(b)]??9));
-  membersEl.innerHTML=shown.length?shown.map(memberCard).join(''):'<p class="empty">暂无符合条件的会员。</p>';
+  const shown=matches.filter(m=>memberFilter==='all'||memberGroup(m)===memberFilter).sort((a,b)=>(groupOrder[memberGroup(a)]??9)-(groupOrder[memberGroup(b)]??9));
+  membersEl.innerHTML=shown.length?shown.map(memberCard).join(''):'<p class="empty">没有找到符合条件的会员。</p>';
   loadPhotos();
 }
 filtersEl.addEventListener('click',e=>{const b=e.target.closest('button[data-filter-member]');if(!b)return;memberFilter=b.dataset.filterMember;renderMembers()});
+document.querySelector('#member-search').addEventListener('input',e=>{memberPhoneQuery=e.target.value.replace(/\D/g,'');renderMembers()});
+document.querySelector('#clear-member-search').addEventListener('click',()=>{document.querySelector('#member-search').value='';memberPhoneQuery='';renderMembers()});
 async function fetchMembers(){const r=await fetch('/api/admin/members',{headers:headers()});if(!r.ok)throw new Error(r.status===401?'令牌无效。':'暂时无法加载会员。');return r.json();}
 function contactCard(cr){return `<article class="card"><div class="card-body"><h3>想联系：${escapeHTML(cr.guest_name)}</h3><p class="meta">会员联系方式：${escapeHTML(cr.guest_contact||'（未填写）')}</p><p class="meta">申请人联系方式：${escapeHTML(cr.requester_contact)}</p>${cr.message?`<p class="bio">留言：${escapeHTML(cr.message)}</p>`:''}<button class="button primary" data-type="contact" data-id="${cr.id}" data-status="approved">已征得同意并转达</button> <button class="button ghost" data-type="contact" data-id="${cr.id}" data-status="declined">拒绝/不予转达</button></div></article>`}
 async function load(){statusEl.textContent='正在加载…';pendingEl.innerHTML='';publishedEl.innerHTML='';contactEl.innerHTML='';membersEl.innerHTML='';filtersEl.innerHTML='';try{const [pending,published,contactRequests,members]=await Promise.all([fetchList('pending'),fetchList('published'),fetchContactRequests('pending'),fetchMembers()]);statusEl.textContent=`会员 ${members.length} 位（其中审核中 ${members.filter(m=>memberGroup(m)==='pending').length} 位），旧版登记待审核 ${pending.length} 条、已发布 ${published.length} 条，联系申请待处理 ${contactRequests.length} 条。`;allMembers=members;renderMembers();document.querySelector('#pending-title').hidden=!pending.length;document.querySelector('#published-title').hidden=!published.length;pendingEl.innerHTML=pending.map(g=>card(g,'pending')).join('');publishedEl.innerHTML=published.map(g=>card(g,'published')).join('');contactEl.innerHTML=contactRequests.map(contactCard).join('')}catch(e){statusEl.textContent=e.message}}
