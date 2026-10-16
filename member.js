@@ -62,6 +62,8 @@ function showMember(me) {
   $('#ped').value = me.education || '';
   $('#ph').value = me.height || '';
   $('#pw').value = me.weight || '';
+  $('#pms').value = me.marriage_status || '';
+  $('#pvisibility').value = me.photo_visibility || 'public';
   currentPhotos = me.photos || (me.photo_key ? [me.photo_key] : []); removedPhotos = []; pendingFiles = []; renderPhotos();
   $('#pp').value = '';
   $('#review-status').textContent = currentPhotos.length ? (reviewLabel[me.review_status] || '') : '';
@@ -187,7 +189,7 @@ $('#profile-form').onsubmit = async e => {
   msg.textContent = '正在保存…';
   try {
     const fd = new FormData();
-    fd.set('nickname', $('#pn').value); fd.set('gender', $('#pg').value); fd.set('age', $('#pa').value); fd.set('city', $('#pc').value); fd.set('bio', $('#pb').value); fd.set('education', $('#ped').value); fd.set('height', $('#ph').value); fd.set('weight', $('#pw').value); fd.set('removed_photos', JSON.stringify(removedPhotos));
+    fd.set('nickname', $('#pn').value); fd.set('gender', $('#pg').value); fd.set('age', $('#pa').value); fd.set('city', $('#pc').value); fd.set('bio', $('#pb').value); fd.set('education', $('#ped').value); fd.set('height', $('#ph').value); fd.set('weight', $('#pw').value); fd.set('marriage_status', $('#pms').value); fd.set('photo_visibility', $('#pvisibility').value); fd.set('removed_photos', JSON.stringify(removedPhotos));
     const files = pendingFiles;
     if (currentPhotos.length + files.length < 1) { msg.textContent = '请至少保留一张本人照片。'; return; }
     if (currentPhotos.length + files.length > 3) { msg.textContent = '最多只能保留 3 张照片。'; return; }
