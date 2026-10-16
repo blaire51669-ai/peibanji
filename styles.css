@@ -35,6 +35,21 @@
 .admin-member-detail .card-body{padding:0}
 .admin-member-detail .member-actions{max-width:320px}
 @media(max-width:560px){.admin-member-summary{flex-wrap:wrap;gap:8px}.member-summary-main{flex:1 1 calc(100% - 34px);flex-wrap:wrap;gap:4px 12px}.member-summary-status{order:1}.admin-member-summary::after{order:2;margin-left:auto}.admin-member-detail .member-actions{max-width:none}}
+.admin-member-summary{justify-content:flex-start;padding:8px 12px}
+.admin-member-summary::after{content:none}
+.member-summary-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:1;min-width:220px;min-height:42px;padding:4px;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.member-summary-main{flex-wrap:wrap}
+.member-summary-icon{flex:none;color:var(--rose-dark);font-size:19px;line-height:1}
+.member-quick-actions{display:flex;align-items:center;gap:8px;flex:none}
+.member-quick-actions .button{min-height:38px;margin:0;padding:6px 14px;white-space:nowrap}
+.member-quick-actions .member-delete{border-color:#d8a2a7;color:#a34e5c;background:#fff}
+.member-quick-actions .member-delete:hover{background:#fff0ed}
+.admin-member-pagination{display:flex;align-items:center;justify-content:center;gap:14px;max-width:900px;margin:-12px 0 30px}
+.admin-member-pagination[hidden]{display:none}
+.admin-member-pagination .button{min-width:90px;margin:0;padding:7px 14px}
+.admin-member-pagination .button:disabled{opacity:.45;cursor:not-allowed}
+.admin-member-pagination span{min-width:180px;color:#796467;text-align:center;font-size:13px}
+@media(max-width:560px){.admin-member-summary{align-items:flex-start;flex-wrap:wrap;gap:5px}.member-summary-toggle{min-width:0}.member-quick-actions{width:100%;padding:0 4px 4px}.member-quick-actions .button{flex:1}.admin-member-detail .member-actions{max-width:none}.admin-member-pagination{gap:8px}.admin-member-pagination span{min-width:0;flex:1;font-size:12px}}
 #profile-dialog{width:min(980px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);overflow:auto}
 #profile-dialog .close{z-index:3}
 .profile-modal-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);min-height:540px}
