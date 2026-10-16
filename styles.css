@@ -50,6 +50,19 @@
 .admin-member-pagination .button:disabled{opacity:.45;cursor:not-allowed}
 .admin-member-pagination span{min-width:180px;color:#796467;text-align:center;font-size:13px}
 @media(max-width:560px){.admin-member-summary{align-items:flex-start;flex-wrap:wrap;gap:5px}.member-summary-toggle{min-width:0}.member-quick-actions{width:100%;padding:0 4px 4px}.member-quick-actions .button{flex:1}.admin-member-detail .member-actions{max-width:none}.admin-member-pagination{gap:8px}.admin-member-pagination span{min-width:0;flex:1;font-size:12px}}
+.admin-member-summary{display:grid;grid-template-columns:minmax(0,2fr) minmax(110px,1fr) minmax(100px,1fr) minmax(120px,1fr) 36px;align-items:center;gap:10px;padding:8px 12px}
+.member-summary-toggle{display:flex;align-items:center;justify-content:flex-start;gap:12px;min-width:0;width:100%;min-height:42px;padding:4px;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.member-summary-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.member-summary-phone{white-space:nowrap}
+.member-summary-status{justify-self:center;white-space:nowrap}
+.member-quick-actions{display:contents}
+.member-quick-actions .button{width:100%;min-height:38px;margin:0;padding:6px 10px;white-space:nowrap}
+.member-quick-actions .member-delete{border-color:#d8a2a7;color:#a34e5c;background:#fff}
+.member-quick-actions .member-delete:hover{background:#fff0ed}
+.member-action-placeholder{display:block;min-height:1px}
+.member-expand-toggle{display:grid;width:36px;height:38px;place-items:center;padding:0;border:0;border-radius:8px;background:transparent;color:var(--rose-dark);font-size:20px;cursor:pointer}
+.member-expand-toggle:hover{background:#fff2ed}
+@media(max-width:680px){.admin-member-summary{grid-template-columns:minmax(0,1fr) minmax(100px,.7fr) 36px;gap:8px}.member-summary-toggle{grid-column:1;grid-row:1}.member-summary-status{grid-column:2;grid-row:1}.member-expand-toggle{grid-column:3;grid-row:1}.member-quick-actions .member-unpublish,.member-action-placeholder{grid-column:1;grid-row:2}.member-quick-actions .member-delete{grid-column:2;grid-row:2}.member-quick-actions .button{min-height:36px}}
 #profile-dialog{width:min(980px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);overflow:auto}
 #profile-dialog .close{z-index:3}
 .profile-modal-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);min-height:540px}
