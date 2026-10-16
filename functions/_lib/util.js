@@ -4,7 +4,7 @@ export const hex = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(
 export const clientIp = request => request.headers.get('CF-Connecting-IP') || 'unknown';
 export const isPhone = p => /^1[3-9]\d{9}$/.test(p);          // 中国大陆 11 位手机号
 export const isCode = c => /^\d{6}$/.test(c);
-export const passwordOk = p => p.length >= 12 && p.length <= 128;
+export const passwordOk = p => p.length >= 8 && p.length <= 128;
 export async function sha256Hex(text) { return hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))); }
 export function safeEqual(a, b) {
   if (a.length !== b.length) return false;
