@@ -27,7 +27,7 @@
       <label>短信验证码
         <div style="display:flex;gap:10px"><input id="rc" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="flex:1;min-width:0" required><button type="button" class="button ghost" id="register-send">获取验证码</button></div>
       </label>
-      <label>设置密码（至少12位） <input id="rp" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+      <label>设置密码（至少8位） <input id="rp" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
       <label>确认密码 <input id="rp2" type="password" autocomplete="new-password" required></label>
       <button class="button primary" type="submit">注册</button>
       <p class="form-status" id="register-msg" role="status"></p>
@@ -40,7 +40,7 @@
       <label>短信验证码
         <div style="display:flex;gap:10px"><input id="fc" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="flex:1;min-width:0" required><button type="button" class="button ghost" id="forgot-send">获取验证码</button></div>
       </label>
-      <label>新密码（至少12位） <input id="fp" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+      <label>新密码（至少8位） <input id="fp" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label>
       <label>确认新密码 <input id="fp2" type="password" autocomplete="new-password" required></label>
       <button class="button primary" type="submit">重置密码</button>
       <button class="button ghost" type="button" id="forgot-back">返回登录</button>
@@ -51,6 +51,7 @@
   <div id="member-view" hidden>
     <form id="profile-form">
       <p>当前账号：<b id="member-phone"></b></p>
+      <p><a class="button primary" href="index.html#guests">浏览其他会员</a></p>
       <label>昵称 <input id="pn" maxlength="20" required></label>
       <div class="two-cols">
         <label>性别 <select id="pg" required><option value="">请选择</option><option>女</option><option>男</option></select></label>
@@ -74,5 +75,5 @@
 </main>
 <script>window.PEIBANJI_TURNSTILE_SITEKEY = "0x4AAAAAAFFvjVPeDbIH4i0z";</script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-<script src="member.js?v=20261016b"></script>
+<script src="member.js?v=20261016d"></script>
 </body></html>

@@ -122,8 +122,8 @@ $('#login-form').onsubmit = async e => {
   try {
     await api('/api/members/login', 'POST', { phone: $('#lph').value.trim(), password: $('#lp').value, turnstileToken: token });
     $('#lp').value = '';
-    msg.textContent = '';
-    if (!await loadMe()) msg.textContent = '登录成功，但读取账号失败，请刷新页面。';
+    msg.textContent = '登录成功，正在进入会员展示…';
+    location.href = 'index.html#guests';
   } catch (err) {
     msg.textContent = err.message;
   } finally {
@@ -135,7 +135,7 @@ $('#register-form').onsubmit = async e => {
   e.preventDefault();
   const msg = $('#register-msg');
   if (!isPhone($('#rph').value.trim())) { msg.textContent = '请输入正确的11位手机号。'; return; }
-  if ($('#rp').value.length < 12) { msg.textContent = '密码至少 12 位。'; return; }
+  if ($('#rp').value.length < 8) { msg.textContent = '密码至少 8 位。'; return; }
   if ($('#rp').value !== $('#rp2').value) { msg.textContent = '两次输入的密码不一致。'; return; }
   msg.textContent = '正在注册…';
   try {
@@ -152,7 +152,7 @@ $('#forgot-form').onsubmit = async e => {
   e.preventDefault();
   const msg = $('#forgot-msg');
   if (!isPhone($('#fph').value.trim())) { msg.textContent = '请输入正确的11位手机号。'; return; }
-  if ($('#fp').value.length < 12) { msg.textContent = '新密码至少 12 位。'; return; }
+  if ($('#fp').value.length < 8) { msg.textContent = '新密码至少 8 位。'; return; }
   if ($('#fp').value !== $('#fp2').value) { msg.textContent = '两次输入的密码不一致。'; return; }
   msg.textContent = '正在重置…';
   try {
