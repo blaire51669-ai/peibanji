@@ -51,6 +51,7 @@ function renderPhotos() {
 $('#photo-gallery').addEventListener('click', e => { const removeSaved=e.target.closest('[data-remove-photo]'); if(removeSaved){const key=removeSaved.dataset.removePhoto;currentPhotos=currentPhotos.filter(x=>x!==key);removedPhotos.push(key);renderPhotos();return}const removePending=e.target.closest('[data-remove-pending]');if(removePending){pendingFiles.splice(Number(removePending.dataset.removePending),1);renderPhotos()}});
 function showMember(me) {
   firstProfile = !me.nickname;
+  $('#browse-members').hidden = firstProfile;
   $('#guest-view').hidden = true;
   $('#member-view').hidden = false;
   $('#member-phone').textContent = maskPhone(me.phone);
