@@ -64,6 +64,12 @@
 .member-expand-toggle:hover{background:#fff2ed}
 @media(max-width:680px){.admin-member-summary{grid-template-columns:minmax(0,1fr) minmax(100px,.7fr) 36px;gap:8px}.member-summary-toggle{grid-column:1;grid-row:1}.member-summary-status{grid-column:2;grid-row:1}.member-expand-toggle{grid-column:3;grid-row:1}.member-quick-actions .member-unpublish,.member-action-placeholder{grid-column:1;grid-row:2}.member-quick-actions .member-delete{grid-column:2;grid-row:2}.member-quick-actions .button{min-height:36px}}
 .member-quick-actions .button{width:64px;height:32px;min-height:32px;justify-self:center;margin:0;padding:4px 5px;font-size:13px;line-height:22px}
+.contact-request-card .card-body{padding:18px 20px}
+.contact-request-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.contact-request-actions .button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;margin:0;padding:6px 13px;border-radius:999px;font-size:13px;line-height:1.4;white-space:nowrap}
+.contact-request-actions .button.primary{box-shadow:0 3px 8px #b85b6e22}
+.contact-request-actions .button.ghost{border-color:#e7c9c7;background:#fff;color:#a34e5c}
+.contact-request-actions .button.ghost:hover{background:#fff3f0}
 #profile-dialog{width:min(980px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);overflow:auto}
 #profile-dialog .close{z-index:3}
 .profile-modal-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);min-height:540px}
