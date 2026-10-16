@@ -43,4 +43,12 @@
 .private-photo-note{padding:10px 12px;border-radius:8px;background:#fff7f3;color:var(--rose-dark);font-size:14px}
 @media(max-width:760px){.private-photo-locked{min-height:240px}}
 
+.safety-alert{max-width:1000px;margin:18px auto 0;padding:17px 22px;border:1px solid #dfa4a0;border-left:5px solid #b84d58;border-radius:12px;background:#fff0ec;color:#593c40;box-shadow:0 6px 20px #74424a12}
+.safety-alert-title{display:flex;align-items:center;gap:10px;margin-bottom:6px;color:#963d4a}
+.safety-alert-title span{font-size:22px}
+.safety-alert-title h2{margin:0;font-family:inherit;font-size:19px;line-height:1.4}
+.safety-alert p{margin:6px 0;font-size:14px;line-height:1.7}
+.safety-alert .safety-alert-action{margin-top:10px;padding-top:8px;border-top:1px solid #efd1ca;color:#8d3e48}
+@media(max-width:700px){.safety-alert{margin:12px 14px 0;padding:14px 16px}.safety-alert-title h2{font-size:17px}.safety-alert p{font-size:13px}}
+
 .join-card{background:white;border-radius:16px;padding:28px;box-shadow:var(--shadow)}.join-card h3{margin:0 0 8px}.join-card ol{padding-left:22px;margin:0 0 18px}.join-card .ghost{margin-left:10px}
